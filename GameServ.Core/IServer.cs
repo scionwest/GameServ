@@ -13,7 +13,7 @@ namespace GameServ.Core
 
         int PacketBufferSize { get; set; }
 
-        int ClientTimeoutPeriod { get; set; }
+        int ClientTimeoutSeconds { get; set; }
 
         bool IsEventMessagingEnabled { get; set; }
 

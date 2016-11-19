@@ -1,6 +1,6 @@
 ﻿namespace GameServ.Core
 {
-    public interface IDatagramHeader
+    public interface IDatagramHeader : IDatagram
     {
         byte SequenceNumber { get; }
 

@@ -11,7 +11,7 @@ namespace GameServ.Core.Tests
         public void TakeOne_ReturnsNewInstance()
         {
             // Arrange
-            var pool = new DatagramPool(10);
+            var pool = new ObjectPool<FakeDatagram>(10);
 
             // Act
             FakeDatagram datagram = pool.TakeOne<FakeDatagram>();
@@ -24,7 +24,7 @@ namespace GameServ.Core.Tests
         public void TakeOne_ReturnsUniqueInstances()
         {
             // Arrange
-            var pool = new DatagramPool(10);
+            var pool = new ObjectPool<FakeDatagram>(10);
 
             // Act
             FakeDatagram datagram1 = pool.TakeOne<FakeDatagram>();
@@ -35,55 +35,10 @@ namespace GameServ.Core.Tests
         }
 
         [TestMethod]
-        public void TakeOne_PerformanceMeasurement_FirstTimeUse()
-        {
-            // Arrange
-            const int _poolSize = 100000; // 100,000
-            var pool = new DatagramPool(_poolSize);
-
-            // Act
-            var watch = new Stopwatch();
-            watch.Start();
-            for (int count = 0; count < _poolSize; count++)
-            {
-                pool.TakeOne<FakeDatagram>();
-            }
-            watch.Stop();
-
-            Debug.WriteLine($"Total Time: {watch.Elapsed.TotalMilliseconds}ms");
-            Debug.WriteLine($"Average per allocation: {watch.Elapsed.Ticks / _poolSize} ticks");
-        }
-
-        [TestMethod]
-        public void TakeOne_PerformanceMeasurement_ReUse()
-        {
-            // Arrange
-            const int _poolSize = 100000; // 100,000
-            var pool = new DatagramPool(_poolSize);
-            for (int count = 0; count < _poolSize; count++)
-            {
-                FakeDatagram datagram = pool.TakeOne<FakeDatagram>();
-                pool.Release(datagram);
-            }
-
-            // Act
-            var watch = new Stopwatch();
-            watch.Start();
-            for (int count = 0; count < _poolSize; count++)
-            {
-                pool.TakeOne<FakeDatagram>();
-            }
-            watch.Stop();
-
-            Debug.WriteLine($"Total Time: {watch.Elapsed.TotalMilliseconds}ms");
-            Debug.WriteLine($"Average per allocation: {watch.Elapsed.Ticks / _poolSize} ticks");
-        }
-
-        [TestMethod]
         public void TakeOne_WillNotStoreMoreThanPoolSize()
         {
             // Arrange
-            var pool = new DatagramPool(2);
+            var pool = new ObjectPool<FakeDatagram>(2);
             FakeDatagram pooledDatagram1 = pool.TakeOne<FakeDatagram>();
             FakeDatagram pooledDatagram2 = pool.TakeOne<FakeDatagram>();
             FakeDatagram unpooledDatagram = pool.TakeOne<FakeDatagram>();
@@ -121,7 +76,7 @@ namespace GameServ.Core.Tests
         public void Release_CleansUpElement()
         {
             // Arrange
-            var pool = new DatagramPool(10);
+            var pool = new ObjectPool<FakeDatagram>(10);
             FakeDatagram datagram1 = pool.TakeOne<FakeDatagram>();
             datagram1.SetAsUnsafeForReuse();
 

@@ -14,7 +14,7 @@ namespace GameServ.Core.Tests.Fakes
             this.IsSafeForReuse = true;
         }
 
-        public void Deserialzie(BinaryReader deserializer)
+        public void Deserialize(BinaryReader deserializer)
         {
             this.IsSafeForReuse = false;
         }
