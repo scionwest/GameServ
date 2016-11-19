@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameServ.Core
 {
-    public class Class1
+    public interface IClientDatagram
     {
     }
 }
