@@ -11,7 +11,28 @@ namespace GameServ.Datagrams
     {
         public MessageDatagram(string message) => this.Message = message;
 
+        public IClientDatagramHeader Header
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public string Message { get; private set; }
+
+        public long TimeStamp
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public void Deserialize(BinaryReader deserializer)
         {

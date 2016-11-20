@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameServ
 {
-    public class ClientHeader : IClientHeader
+    public class ClientHeader : IClientDatagramHeader
     {
         public ClientHeader() { }
         public ClientHeader(byte channel, int clientId, bool isLastInSequence, byte messageType, DatagramPolicy policy, byte sequenceNumber)
@@ -19,6 +19,8 @@ namespace GameServ
             this.Policy = policy;
             this.SequenceNumber = sequenceNumber;
         }
+
+        public long TimeStamp { get; set; }
 
         public byte Channel { get; private set; }
 
@@ -32,6 +34,12 @@ namespace GameServ
 
         public byte SequenceNumber { get; private set; }
 
+        public byte OSPlatform { get; private set; }
+
+        public string OSVersion { get; private set; }
+
+        public byte AppVersion { get; private set; }
+
         public void Deserialize(BinaryReader deserializer)
         {
             this.Channel = deserializer.ReadByte();
@@ -40,6 +48,9 @@ namespace GameServ
             this.MessageType = deserializer.ReadByte();
             this.Policy = (DatagramPolicy)deserializer.ReadInt32();
             this.SequenceNumber = deserializer.ReadByte();
+            this.OSPlatform = deserializer.ReadByte();
+            this.OSVersion = deserializer.ReadString();
+            this.AppVersion = deserializer.ReadByte();
         }
 
         public bool IsMessageValid()

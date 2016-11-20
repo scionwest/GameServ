@@ -2,7 +2,7 @@
 {
     public class ClientDatagramArgs
     {
-        public ClientDatagramArgs(IClientDatagram datagram, byte[] rawMessage, IClient client)
+        public ClientDatagramArgs(IClientDatagram datagram, byte[] rawMessage, ClientConnection client)
         {
             this.Datagram = datagram;
             this.RawMessage = rawMessage;
@@ -13,6 +13,6 @@
 
         public byte[] RawMessage { get; }
 
-        public IClient Target { get; }
+        public ClientConnection Target { get; }
     }
 }

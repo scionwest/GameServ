@@ -7,6 +7,14 @@ namespace GameServ.Core.Tests.Fakes
     {
         public bool IsSafeForReuse;
 
+        public long TimeStamp
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void SetAsUnsafeForReuse() => this.IsSafeForReuse = false;
 
         public void PrepareForReuse()

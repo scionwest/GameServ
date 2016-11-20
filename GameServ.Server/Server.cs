@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -9,18 +10,30 @@ namespace GameServ.Server
     public class Server : IServer
     {
         private readonly DatagramFactory datagramFactory;
-        private readonly Dictionary<EndPoint, ClientConnection> connectedClients;
+        private readonly Dictionary<ClientConnection, EndPoint> connectedClients;
         private Socket serverSocket;
-        public IPEndPoint serverEndPoint;
+        private IPEndPoint serverEndPoint;
+        private IAuthenticator authenticator;
 
-        public Server()
+        private ServerTimer<Server> timeoutTimer;
+
+        public Server(byte[] ipAddressToBindWith)
         {
             this.ServerPort = 11000;
             this.PacketBufferSize = 256;
+            this.ClientTimeoutSeconds = 90;
             this.ClientTimeoutSeconds = (int)TimeSpan.FromMinutes(5).TotalSeconds;
 
             this.datagramFactory = new DatagramFactory();
-            this.connectedClients = new Dictionary<EndPoint, ClientConnection>();
+            this.connectedClients = new Dictionary<ClientConnection, EndPoint>();
+
+            this.serverEndPoint = new IPEndPoint(new IPAddress(ipAddressToBindWith), this.ServerPort);
+        }
+
+        public Server(byte[] ipAddressToBindWith, IAuthenticator authenticator) : this(ipAddressToBindWith)
+        {
+            this.authenticator = authenticator;
+            this.IsAuthenticationRequired = true;
         }
 
         public event Action<ClientDatagramArgs> ClientDatagramReceived;
@@ -35,6 +48,8 @@ namespace GameServ.Server
 
         public int PacketBufferSize { get; set; }
 
+        public bool IsAuthenticationRequired { get; set; }
+
         public ServerPolicy ServerPolicy { get; set; }
 
         public int ServerPort { get; set; }
@@ -48,19 +63,38 @@ namespace GameServ.Server
         {
             // Setup the socket for use
             this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            IPHostEntry hostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            foreach(var info in hostInfo.AddressList)
-            {
-                Console.WriteLine(info.MapToIPv4().ToString());
-            }
-
-            this.serverEndPoint = new IPEndPoint(hostInfo.AddressList[2], this.ServerPort);
 
             // Bind and configure the socket so we are always given the client end point packet info.
             this.serverSocket.Bind(this.serverEndPoint);
             this.IsRunning = true;
             this.ListenForData(this.serverSocket);
             this.ServerStarted?.Invoke(this);
+
+            double timeoutScanInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
+            this.timeoutTimer = new ServerTimer<Server>(this);
+            this.timeoutTimer.Start(timeoutScanInterval, timeoutScanInterval, 0, (runningServer, timer) => runningServer.PurgeStaleConnections());
+        }
+
+        public void Shutdown()
+        {
+            this.serverSocket.Shutdown(SocketShutdown.Both);
+            this.connectedClients.Clear();
+        }
+
+        public void SendMessage(ClientConnection connection, IServerDatagram message)
+        {
+            this.ServerDatagramSent?.Invoke(message);
+        }
+
+        public void PurgeStaleConnections()
+        {
+            foreach(var connection in this.connectedClients.Keys.ToArray())
+            {
+                if ((connection.LastTransmissionTime - DateTime.Now.Ticks) > this.ClientTimeoutSeconds)
+                {
+                    this.connectedClients.Remove(connection);
+                }
+            }
         }
 
         private void ListenForData(Socket listenOnSocket)
@@ -105,7 +139,7 @@ namespace GameServ.Server
             {
                 reader.BaseStream.Seek(0, SeekOrigin.Begin);
 
-                IClientHeader header = new ClientHeader();
+                IClientDatagramHeader header = new ClientHeader();
                 header.Deserialize(reader);
                 if (!header.IsMessageValid())
                 {
@@ -133,16 +167,6 @@ namespace GameServ.Server
                 this.ClientDatagramReceived?.Invoke(new ClientDatagramArgs(datagram, state.Buffer, connection));
             }
             this.ListenForData(socket);
-        }
-
-        public void Shutdown()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendMessage(IServerDatagram message, EndPoint destination)
-        {
-            this.ServerDatagramSent?.Invoke(message);
         }
     }
 }

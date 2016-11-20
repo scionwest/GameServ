@@ -8,5 +8,6 @@ namespace GameServ
 {
     public interface IClientDatagram : IDatagram
     {
+        IClientDatagramHeader Header { get; set; }
     }
 }

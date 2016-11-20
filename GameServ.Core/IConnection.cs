@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace GameServ
 {
-    public interface IClient<TOwner> : IClient
+    public interface IConnection
     {
-        TOwner Owner { get; }
+
     }
 }

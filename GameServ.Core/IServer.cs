@@ -21,12 +21,16 @@ namespace GameServ
 
         bool IsRunning { get; }
 
+        bool IsAuthenticationRequired { get; set; }
+
         IPEndPoint GetAvailableServerEndPoint();
 
         void Start();
 
         void Shutdown();
 
-        void SendMessage(IServerDatagram message, EndPoint destination);
+        void SendMessage(ClientConnection connection, IServerDatagram message);
+
+        void PurgeStaleConnections();
     }
 }

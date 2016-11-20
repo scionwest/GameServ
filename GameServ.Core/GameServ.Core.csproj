@@ -41,20 +41,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientAuthenticationInfo.cs" />
     <Compile Include="ClientConnection.cs" />
-    <Compile Include="ClientConnection`1.cs" />
     <Compile Include="ClientDatagramArgs.cs" />
     <Compile Include="ClientHeader.cs" />
     <Compile Include="DatagramFactory.cs" />
     <Compile Include="DatagramPolicy.cs" />
     <Compile Include="EndPointInformation.cs" />
-    <Compile Include="IClient`1.cs" />
+    <Compile Include="IAuthenticator.cs" />
+    <Compile Include="IClientDatagramHeader.cs" />
+    <Compile Include="IConnection.cs" />
     <Compile Include="IPoolable.cs" />
     <Compile Include="MessageDatagram.cs" />
     <Compile Include="ObjectPool.cs" />
-    <Compile Include="IClient.cs" />
     <Compile Include="IClientDatagram.cs" />
-    <Compile Include="IClientHeader.cs" />
     <Compile Include="IDatagram.cs" />
     <Compile Include="IDatagramHeader.cs" />
     <Compile Include="IServer.cs" />

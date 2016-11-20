@@ -17,7 +17,7 @@ namespace GameServ
             clientDatagrams.Add(1, typeof(MessageDatagram));
         }
 
-        public IClientDatagram CreateDatagramFromClientHeader(IClientHeader header)
+        public IClientDatagram CreateDatagramFromClientHeader(IClientDatagramHeader header)
         {
             if (!this.clientDatagrams.TryGetValue(header.MessageType, out Type datagramType))
             {
@@ -25,6 +25,7 @@ namespace GameServ
             }
 
             IClientDatagram datagram = this.datagramPool.TakeOne(datagramType);
+            datagram.Header = header;
             return datagram;
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace GameServ
 {
-    public interface IServerDatagram
+    public interface IServerDatagram : IDatagram
     {
     }
 }

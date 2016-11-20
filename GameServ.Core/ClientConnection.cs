@@ -1,47 +1,32 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace GameServ
 {
-    public class ClientConnection : IClient
+    public class ClientConnection
     {
-        public ClientConnection(string appVersion, EndPoint destination, long lastTransmissionTime, string osPlatform, string osVersion)
-        {
-            this.AppVersion = appVersion;
-            this.Destination = destination;
-            this.LastTransmissionTime = lastTransmissionTime;
-            this.OSPlatform = OSPlatform;
-            this.OSVersion = osVersion;
-        }
+        private IServer server;
+        private IClientDatagram lastReveivedDatagram;
 
-        public string AppVersion { get; }
+        public ClientConnection(IServer server) => this.server = server;
 
-        public EndPoint Destination { get; }
+        public long LastTransmissionTime { get; private set; }
 
-        public long LastTransmissionTime { get; }
+        public byte AppVersion { get; private set; }
 
-        public string OSPlatform { get; }
+        public byte OSPlatform { get; private set; }
 
-        public string OSVersion { get; }
+        public string OSVersion { get; private set; }
+
+        public void SendDatagramToClient(IServerDatagram datagram)
+            => this.server.SendMessage(this, datagram);
 
         public void DatagramReceived(IClientDatagram datagram)
         {
-            throw new NotImplementedException();
-        }
-
-        public EndPointInformation GetTargetServer()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendDatagramToClient(IServerDatagram datagram)
-        {
-            throw new NotImplementedException();
+            this.LastTransmissionTime = datagram.Header.TimeStamp;
+            this.AppVersion = datagram.Header.AppVersion;
+            this.OSPlatform = datagram.Header.OSPlatform;
+            this.OSVersion = datagram.Header.OSVersion;
+            this.lastReveivedDatagram = datagram;
         }
     }
 }
