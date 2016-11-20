@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace GameServ
 {
-    public interface IClientDatagram : IDatagram
+    public interface IClient<TOwner> : IClient
     {
+        TOwner Owner { get; }
     }
 }

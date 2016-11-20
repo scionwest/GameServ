@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GameServ.Core
+namespace GameServ.Server
 {
     public class Server : IServer
     {
         private readonly DatagramFactory datagramFactory;
         private readonly Dictionary<EndPoint, ClientConnection> connectedClients;
         private Socket serverSocket;
-        private IPEndPoint serverEndPoint;
+        public IPEndPoint serverEndPoint;
 
         public Server()
         {
@@ -51,7 +48,13 @@ namespace GameServ.Core
         {
             // Setup the socket for use
             this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            this.serverEndPoint = new IPEndPoint(IPAddress.Any, this.ServerPort);
+            IPHostEntry hostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            foreach(var info in hostInfo.AddressList)
+            {
+                Console.WriteLine(info.MapToIPv4().ToString());
+            }
+
+            this.serverEndPoint = new IPEndPoint(hostInfo.AddressList[2], this.ServerPort);
 
             // Bind and configure the socket so we are always given the client end point packet info.
             this.serverSocket.Bind(this.serverEndPoint);

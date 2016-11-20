@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GameServ.Core
+namespace GameServ
 {
     [Flags]
     public enum ServerPolicy

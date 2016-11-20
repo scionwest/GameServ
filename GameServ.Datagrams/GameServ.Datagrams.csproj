@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{13193081-5141-4BF4-824D-137F4CD38DA0}</ProjectGuid>
+    <ProjectGuid>{0A69ADBF-42B2-420E-A8A7-68D4A367229E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameServ</RootNamespace>
-    <AssemblyName>GameServ.Core</AssemblyName>
+    <RootNamespace>GameServ.Datagrams</RootNamespace>
+    <AssemblyName>GameServ.Datagrams</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GameServ.Core">
+      <HintPath>..\GameServ.Server.Demo\bin\Debug\GameServ.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,28 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ClientConnection`1.cs" />
-    <Compile Include="ClientDatagramArgs.cs" />
-    <Compile Include="ClientHeader.cs" />
-    <Compile Include="DatagramFactory.cs" />
-    <Compile Include="DatagramPolicy.cs" />
-    <Compile Include="EndPointInformation.cs" />
-    <Compile Include="IClient`1.cs" />
-    <Compile Include="IPoolable.cs" />
     <Compile Include="MessageDatagram.cs" />
-    <Compile Include="ObjectPool.cs" />
-    <Compile Include="IClient.cs" />
-    <Compile Include="IClientDatagram.cs" />
-    <Compile Include="IClientHeader.cs" />
-    <Compile Include="IDatagram.cs" />
-    <Compile Include="IDatagramHeader.cs" />
-    <Compile Include="IServer.cs" />
-    <Compile Include="IServerDatagram.cs" />
-    <Compile Include="PacketState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerPolicy.cs" />
-    <Compile Include="ServerTimer`1.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

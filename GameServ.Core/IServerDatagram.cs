@@ -1,4 +1,4 @@
-﻿namespace GameServ.Core
+﻿namespace GameServ
 {
     public interface IServerDatagram
     {

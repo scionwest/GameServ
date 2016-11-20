@@ -4,25 +4,26 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{13193081-5141-4BF4-824D-137F4CD38DA0}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameServ</RootNamespace>
-    <AssemblyName>GameServ.Core</AssemblyName>
+    <ProjectGuid>{3A4E0834-9A88-4CCD-A600-2698472B8C67}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>GameServ.Server.Demo</RootNamespace>
+    <AssemblyName>GameServ.Server.Demo</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,28 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ClientConnection`1.cs" />
-    <Compile Include="ClientDatagramArgs.cs" />
-    <Compile Include="ClientHeader.cs" />
-    <Compile Include="DatagramFactory.cs" />
-    <Compile Include="DatagramPolicy.cs" />
-    <Compile Include="EndPointInformation.cs" />
-    <Compile Include="IClient`1.cs" />
-    <Compile Include="IPoolable.cs" />
-    <Compile Include="MessageDatagram.cs" />
-    <Compile Include="ObjectPool.cs" />
-    <Compile Include="IClient.cs" />
-    <Compile Include="IClientDatagram.cs" />
-    <Compile Include="IClientHeader.cs" />
-    <Compile Include="IDatagram.cs" />
-    <Compile Include="IDatagramHeader.cs" />
-    <Compile Include="IServer.cs" />
-    <Compile Include="IServerDatagram.cs" />
-    <Compile Include="PacketState.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerPolicy.cs" />
-    <Compile Include="ServerTimer`1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameServ.Core\GameServ.Core.csproj">
+      <Project>{13193081-5141-4bf4-824d-137f4cd38da0}</Project>
+      <Name>GameServ.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameServ.Server\GameServ.Server.csproj">
+      <Project>{2b999e8c-3c54-4f31-bd14-dc27dfe89333}</Project>
+      <Name>GameServ.Server</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

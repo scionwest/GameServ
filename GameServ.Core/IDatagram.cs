@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GameServ.Core
+namespace GameServ
 {
     public interface IDatagram : IPoolable
     {

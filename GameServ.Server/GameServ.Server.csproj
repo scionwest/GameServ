@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{13193081-5141-4BF4-824D-137F4CD38DA0}</ProjectGuid>
+    <ProjectGuid>{2B999E8C-3C54-4F31-BD14-DC27DFE89333}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameServ</RootNamespace>
-    <AssemblyName>GameServ.Core</AssemblyName>
+    <RootNamespace>GameServ.Server</RootNamespace>
+    <AssemblyName>GameServ.Server</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,28 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ClientConnection`1.cs" />
-    <Compile Include="ClientDatagramArgs.cs" />
-    <Compile Include="ClientHeader.cs" />
-    <Compile Include="DatagramFactory.cs" />
-    <Compile Include="DatagramPolicy.cs" />
-    <Compile Include="EndPointInformation.cs" />
-    <Compile Include="IClient`1.cs" />
-    <Compile Include="IPoolable.cs" />
-    <Compile Include="MessageDatagram.cs" />
-    <Compile Include="ObjectPool.cs" />
-    <Compile Include="IClient.cs" />
-    <Compile Include="IClientDatagram.cs" />
-    <Compile Include="IClientHeader.cs" />
-    <Compile Include="IDatagram.cs" />
-    <Compile Include="IDatagramHeader.cs" />
-    <Compile Include="IServer.cs" />
-    <Compile Include="IServerDatagram.cs" />
-    <Compile Include="PacketState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerPolicy.cs" />
-    <Compile Include="ServerTimer`1.cs" />
+    <Compile Include="Server.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameServ.Core\GameServ.Core.csproj">
+      <Project>{13193081-5141-4bf4-824d-137f4cd38da0}</Project>
+      <Name>GameServ.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

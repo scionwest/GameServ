@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameServ.Core
+namespace GameServ
 {
     public class ObjectPool<TObject> where TObject : IPoolable
     {
