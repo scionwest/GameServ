@@ -2,5 +2,6 @@
 {
     public interface IServerDatagram : IDatagram
     {
+        IServerDatagramHeader Header { get; }
     }
 }

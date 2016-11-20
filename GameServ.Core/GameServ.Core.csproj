@@ -52,6 +52,7 @@
     <Compile Include="IClientDatagramHeader.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="IPoolable.cs" />
+    <Compile Include="IServerDatagramHeader.cs" />
     <Compile Include="MessageDatagram.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="IClientDatagram.cs" />
