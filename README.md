@@ -55,7 +55,7 @@ To create a datagram, you have to implement the `IServerDatagram` interface.
     
 You can send datagrams from the server to the client.
 
-server.SendMessage(client, datagram);
+    server.SendMessage(client, datagram);
 
 Creation of the client and the datagram is currently not built. The source supports it, but I have not built in any API to expose that stuff out of the box.
 
