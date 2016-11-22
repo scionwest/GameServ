@@ -8,9 +8,15 @@ namespace GameServ.Server.Tests
     {
         private readonly bool result;
 
-        public FakeMiddleware(bool result) => this.result = result;
+        public FakeMiddleware(bool result)
+        {
+            this.result = result;
+        }
 
-        public bool EvaluateClientDatagram(byte[] buffer, IClientDatagram clientDatagram) => this.result;
+        public bool EvaluateClientDatagram(byte[] buffer, IClientDatagram clientDatagram)
+        {
+            return result;
+        }
     }
 
     public class UnitTest1
@@ -18,8 +24,8 @@ namespace GameServ.Server.Tests
         [Fact]
         public void Test1()
         {
-            var server = new ServerBuilder();
-            server.Configure(configuration =>
+            var builder = new ServerBuilder();
+            builder.Configure(configuration =>
             {
                 configuration.Policy = ServerPolicy.RequireAcknowledgement;
                 configuration.Port = 11000;
@@ -28,8 +34,10 @@ namespace GameServ.Server.Tests
             });
 
             var middleware = new FakeMiddleware(true);
-            server.UseMiddleware(middleware);
-            server.Start();
+            builder.UseMiddleware(middleware);
+            IServer server = builder.Start();
+
+            server.Shutdown();
         }
 
         private void MapDatagrams(DatagramFactory factory)
