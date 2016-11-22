@@ -53,10 +53,6 @@
       <Project>{13193081-5141-4bf4-824d-137f4cd38da0}</Project>
       <Name>GameServ.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GameServ.Server\GameServ.Server.csproj">
-      <Project>{2b999e8c-3c54-4f31-bd14-dc27dfe89333}</Project>
-      <Name>GameServ.Server</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
