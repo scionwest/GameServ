@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.25914.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServ.Core", "src\GameServ.Core2\GameServ.Core.csproj", "{33D54DD9-E422-42C6-8D60-2173AD5A4953}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServ.Core", "src\GameServ.Core\GameServ.Core.csproj", "{33D54DD9-E422-42C6-8D60-2173AD5A4953}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServ.Server", "src\GameServ.Server\GameServ.Server.csproj", "{2F290BF1-6EC0-46E0-8FB2-79B6ACECA501}"
 EndProject

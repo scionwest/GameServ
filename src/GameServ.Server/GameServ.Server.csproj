@@ -26,7 +26,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameServ.Core2\GameServ.Core.csproj" />
+    <ProjectReference Include="..\GameServ.Core\GameServ.Core.csproj" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
