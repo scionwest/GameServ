@@ -1,5 +1,4 @@
-using GameServ.Datagrams;
-using System;
+using GameServ.Core.NetworkReplication;
 using Xunit;
 
 namespace GameServ.Server.Tests
@@ -30,19 +29,12 @@ namespace GameServ.Server.Tests
                 configuration.Policy = ServerPolicy.RequireAcknowledgement;
                 configuration.Port = 11000;
                 configuration.PacketBufferSize = 256;
-                configuration.MapClientDatagramTypes(this.MapDatagrams);
+                configuration.MapClientDatagramTypes((factory) => { });
             });
 
             var middleware = new FakeMiddleware(true);
             builder.UseMiddleware(middleware);
-            IServer server = builder.Start();
-
-            server.Shutdown();
-        }
-
-        private void MapDatagrams(DatagramFactory factory)
-        {
-            factory.RegisterDatagramType<MessageDatagram>(1);
+            builder.StartListening();
         }
     }
 }

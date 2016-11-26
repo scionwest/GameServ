@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameServ.Server
@@ -9,11 +10,12 @@ namespace GameServ.Server
         private List<IMiddleware> registeredMiddleware;
         private ServerConfiguration serverConfiguration = new ServerConfiguration();
 
-        public IServer Start()
+        public void StartListening()
         {
-            var server = new SocketEventArgsServer();
+            var server = new SocketListener(
+                this.registeredMiddleware ?? Enumerable.Empty<IMiddleware>(),
+                this.serverConfiguration);
             this.StartServer(server);
-            return server;
         }
 
         public IServerBuilder UseMiddleware<TMiddleware>(TMiddleware middleware) where TMiddleware : IMiddleware
@@ -33,14 +35,8 @@ namespace GameServ.Server
             return this;
         }
 
-        private void StartServer(SocketEventArgsServer server)
+        private void StartServer(SocketListener server)
         {
-            if (this.registeredMiddleware != null)
-            {
-                server.UseMiddleware(this.registeredMiddleware);    
-            }
-
-            server.ServerPort = this.serverConfiguration.Port;
             server.Start();
         }
     }

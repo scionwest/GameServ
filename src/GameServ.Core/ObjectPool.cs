@@ -1,65 +1,105 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Threading;
 
 namespace GameServ
 {
-    public class ObjectPool<TObject> where TObject : IPoolable
+    public class ObjectPool<TObject>
     {
-        private readonly int maxPoolSize;
-        private readonly Dictionary<Type, Stack<TObject>> poolCache;
+        private int maxPoolSize;
+        private SpinLock poolLock;
+        private Dictionary<Type, Stack<TObject>> poolCache;
+        private Func<TObject> factory;
 
         public ObjectPool(int poolSize)
         {
             this.maxPoolSize = poolSize;
+            this.poolLock = new SpinLock(false);
             this.poolCache = new Dictionary<Type, Stack<TObject>>();
         }
 
-        public T TakeOne<T>() where T : TObject
-            => (T)this.TakeOne(typeof(T));
-
-        public TObject TakeOne(Type datagramType)
+        public ObjectPool(int poolSize, Func<TObject> factory) : this(poolSize)
         {
-            Stack<TObject> cachedCollection = this.GetCacheForDatagram(datagramType);
-            if (cachedCollection.Count == 0)
-            {
-                // New instances don't need to be prepared for re-use, so we just return it.
-                return (TObject)Activator.CreateInstance(datagramType);
-            }
-
-            // Have the datagram clean itself up before being re-used.
-            // We do it when being asked for, vs when released, since it might not always be re-used.
-            // Prevents needlessly cleaning itself up when not needed.
-            TObject datagram = cachedCollection.Pop();
-            datagram.PrepareForReuse();
-            return datagram;
-
+            this.factory = factory;
         }
 
-        public void Release(TObject datagram)
-        {
-            Stack<TObject> cachedCollection = this.GetCacheForDatagram(datagram.GetType());
+        public T Rent<T>() where T : TObject
+            => (T)this.Rent(typeof(T));
 
-            // We don't need to re-add this datagram to our pool if we've hit our max pool size.
-            // This would help in stopping the server from running out of memory if someone got cute
-            // and figured out the protocol and spammed the server with messages.
-            if (cachedCollection.Count >= this.maxPoolSize)
+        public TObject Rent(Type type)
+        {
+            bool lockTaken = false;
+            Stack<TObject> cachedCollection;
+            this.poolLock.Enter(ref lockTaken);
+
+            try
             {
-                return;
+                if (!this.poolCache.TryGetValue(type, out cachedCollection))
+                {
+                    cachedCollection = new Stack<TObject>();
+                    this.poolCache.Add(type, cachedCollection);
+                }
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    this.poolLock.Exit(false);
+                }
             }
 
-            cachedCollection.Push(datagram);
+            if (cachedCollection.Count > 0)
+            {
+                TObject instance = cachedCollection.Pop();
+                if (instance != null)
+                    return instance;
+            }
+
+            // New instances don't need to be prepared for re-use, so we just return it.
+            if (this.factory == null)
+            {
+                return (TObject)Activator.CreateInstance(type);
+            }
+            else
+            {
+                return this.factory();
+            }
         }
 
-        private Stack<TObject> GetCacheForDatagram(Type datagramType)
+        public void Return(TObject instanceObject)
         {
-            if (!this.poolCache.TryGetValue(datagramType, out Stack<TObject> cachedCollection))
-            {
-                cachedCollection = new Stack<TObject>();
-                this.poolCache.Add(datagramType, cachedCollection);
-            }
+            Stack<TObject> cachedCollection = null;
+            Type type = typeof(TObject);
 
-            return cachedCollection;
+            bool lockTaken = false;
+            this.poolLock.Enter(ref lockTaken);
+            try
+            {
+                if (!this.poolCache.TryGetValue(type, out cachedCollection))
+                {
+                    cachedCollection = new Stack<TObject>();
+                    this.poolCache.Add(type, cachedCollection);
+                }
+
+                if (cachedCollection.Count >= this.maxPoolSize)
+                {
+                    return;
+                }
+
+                // TODO: Convert Stack into an array.
+                // We'll track the current index by decrementing the index in Rent, and incrementing in Return
+                // Upon Renting, we'll set pool[index] to null, then reduce index by 1. This lets us manage an
+                // array and have zero lookup costs.
+                cachedCollection.Push(instanceObject);
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    this.poolLock.Exit(false);
+                }
+            }
         }
     }
 }

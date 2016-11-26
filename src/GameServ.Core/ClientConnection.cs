@@ -4,10 +4,10 @@ namespace GameServ
 {
     public class ClientConnection
     {
-        private IServer server;
+        private INetworkListener server;
         private IClientDatagram lastReveivedDatagram;
 
-        public ClientConnection(IServer server) => this.server = server;
+        public ClientConnection(INetworkListener server) => this.server = server;
 
         public long LastTransmissionTime { get; private set; }
 

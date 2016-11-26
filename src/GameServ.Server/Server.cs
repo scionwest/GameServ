@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace GameServ.Server
 {
-    public class Server : IServer
+    public class Server
     {
         private ArrayPool<byte> pool;
         private readonly DatagramFactory datagramFactory;

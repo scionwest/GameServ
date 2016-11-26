@@ -8,6 +8,6 @@ namespace GameServ
     {
         IServerBuilder UseMiddleware<TMiddleware>(TMiddleware middleware) where TMiddleware : IMiddleware;
 
-        IServer Start();
+        void StartListening();
     }
 }

@@ -1,10 +1,7 @@
-﻿using GameServ.Datagrams;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameServ
 {
@@ -18,7 +15,7 @@ namespace GameServ
 
         public DatagramFactory()
         {
-            clientDatagrams.Add(1, typeof(MessageDatagram));
+            //clientDatagrams.Add(1, typeof(MessageDatagram));
         }
 
         public void RegisterDatagramType<TDatagram>(byte messageType) where TDatagram : IClientDatagram
@@ -64,7 +61,7 @@ namespace GameServ
                 return null;
             }
 
-            IClientDatagram datagram = this.datagramPool.TakeOne(datagramType);
+            IClientDatagram datagram = this.datagramPool.Rent(datagramType);
             datagram.Header = header;
             return datagram;
         }
