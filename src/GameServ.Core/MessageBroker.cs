@@ -11,10 +11,10 @@ namespace GameServ.Core
         /// <summary>
         /// Collection of subscribed listeners
         /// </summary>
-        private readonly Dictionary<Type, List<ISubscription>> listeners;
-        private readonly ArrayPool<ISubscription> publishingCollectionPool;
-        private readonly SpinLock listenerLock;
-        private static readonly IMessageBroker singleton;
+        private Dictionary<Type, List<ISubscription>> listeners;
+        private ArrayPool<ISubscription> publishingCollectionPool;
+        private SpinLock listenerLock;
+        private static IMessageBroker singleton;
 
         static MessageBroker() => singleton = new MessageBroker();
 
@@ -131,7 +131,7 @@ namespace GameServ.Core
 
             foreach (INotification<T> handler in listenersToPublishTo)
             {
-                handler.ProcessMessage(message);
+                handler?.ProcessMessage(message);
             }
         }
 

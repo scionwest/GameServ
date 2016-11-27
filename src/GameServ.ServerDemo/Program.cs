@@ -1,4 +1,5 @@
 ﻿using GameServ;
+using GameServ.Core;
 using GameServ.Core.Datagrams.Client;
 using GameServ.Core.NetworkReplication;
 using GameServ.Server;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 class Program
@@ -35,32 +37,6 @@ class Program
 
     static void Main(string[] args)
     {
-        //byte[] buffer = new byte[32];
-        //var writer = new BinaryWriter(new MemoryStream(buffer));
-        //writer.Write("Foo bar");
-        //writer.Write(15);
-        //writer.Write(true);
-        //writer.Dispose();
-        //var reader = new BinaryReader(new MemoryStream(new byte[] { 26, 26, 26, 26, 134, 1, 255, 15, 25, 25, 25, 6, 1 }));
-        //while (true)
-        //{
-        //    reader.ReadByte();
-        //    reader.BaseStream.Seek(0, SeekOrigin.Begin);
-        //    for (int index = 0; index < reader.BaseStream.Length; index++)
-        //    {
-
-        //    }
-        //}
-
-        //int iterations = 100000000;
-        //var tasks = new List<Task>();
-        //var pool = new ObjectPool<object>(1000);
-        //for (int count = 0; count < iterations; count++)
-        //{
-        //    Task runningTask = Task.Run(() => pool.Rent<object>()).ContinueWith(task => pool.Return(task.Result));
-        //    tasks.Add(runningTask);
-        //}
-
         //BenchmarkTypeKeyLookup();
         var builder = new ServerBuilder();
         var ipAddress = new IPAddress(new byte[] { 10, 0, 1, 6 });
@@ -84,7 +60,42 @@ class Program
             //        .OneWayFromServer();
         });
 
+        var watch = new Stopwatch();
+        watch.Start();
         Console.WriteLine($"Listening on {ipAddress}");
+        var msgLock = new SpinLock();
+        Task.Run(() =>
+        {
+            int count = 0;
+
+            MessageBroker.Default.Subscribe<DatagramReceivedMessage>((msg, sub) =>
+            {
+                bool lockTaken = false;
+                int currentCount = count;
+                try
+                {
+                    msgLock.Enter(ref lockTaken);
+                    watch.Stop();
+                    count = 0;
+                    watch.Reset();
+                    watch.Start();
+                }
+                finally
+                {
+                    if (lockTaken)
+                    {
+                        msgLock.Exit(false);
+                    }
+                }
+
+                Debug.Write($"\rRequests per second: {currentCount}");
+            },
+            (msg) =>
+            {
+                count++;
+                return watch.Elapsed.Seconds >= 1;
+            });
+        });
         builder.StartListening();
     }
 

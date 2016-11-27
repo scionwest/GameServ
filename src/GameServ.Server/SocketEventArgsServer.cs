@@ -9,6 +9,7 @@ using System.Buffers;
 using System.Reflection;
 using System.Threading;
 using System.IO;
+using GameServ.Core;
 
 namespace GameServ.Server
 {
@@ -75,6 +76,7 @@ namespace GameServ.Server
             //byte[] buffer = e.Buffer;
             //ClientConnection client = (ClientConnection)e.UserToken;
             this.socketEventArgsPool.Return(e);
+            Task.Run(() => MessageBroker.Default.Publish(new DatagramReceivedMessage()));
 
             //if (buffer.Length == 0)
             //{
