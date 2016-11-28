@@ -13,7 +13,6 @@ namespace GameServ.Server
         public void StartListening()
         {
             var server = new SocketListener(
-                this.registeredMiddleware ?? Enumerable.Empty<IMiddleware>(),
                 this.serverConfiguration);
             this.StartServer(server);
         }

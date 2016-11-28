@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.IO;
 using GameServ.Core;
+using System.Diagnostics;
 
 namespace GameServ.Server
 {
@@ -17,18 +18,15 @@ namespace GameServ.Server
     {
         private ArrayPool<byte> socketBufferPool;
         private ObjectPool<SocketAsyncEventArgs> socketEventArgsPool;
-        private int count = 0;
-        private SpinLock countLock = new SpinLock();
+        private Dictionary<SocketAsyncEventArgs, ConnectionState> clientState;
 
         private Socket listeningSocket;
         private IPEndPoint readEndPoint;
 
         private readonly ServerConfiguration configuration;
-        private IEnumerable<IMiddleware> middleware;
 
-        public SocketListener(IEnumerable<IMiddleware> middleware, ServerConfiguration config)
+        public SocketListener(ServerConfiguration config)
         {
-            this.middleware = middleware;
             this.configuration = config;
             this.readEndPoint = new IPEndPoint(IPAddress.Any, 11100);
         }
@@ -37,7 +35,7 @@ namespace GameServ.Server
 
         public bool IsRunning { get; private set; }
 
-        public void SendMessage(ClientConnection connection, IServerDatagram message)
+        public void SendMessage(ConnectionState connection, IServerDatagram message)
         {
             throw new NotImplementedException();
         }
@@ -69,22 +67,24 @@ namespace GameServ.Server
         {
             // Rent a new Socket event arg right away and start listening for more packets.
             SocketAsyncEventArgs eventArgs = this.socketEventArgsPool.Rent<SocketAsyncEventArgs>();
-
             this.listeningSocket.ReceiveFromAsync(eventArgs);
 
             // Get the data we want from the event args and then send it back into the pool for recycling.
-            //byte[] buffer = e.Buffer;
-            //ClientConnection client = (ClientConnection)e.UserToken;
+            // We have to grab a reference to the buffer array. Once the rental is returned we can't
+            // trust it's data, it might be in use by another SocketAsyncEventArgs at any point in time.
+            byte[] buffer = e.Buffer;
+            var client = (ConnectionState)e.UserToken;
             this.socketEventArgsPool.Return(e);
-            Task.Run(() => MessageBroker.Default.Publish(new DatagramReceivedMessage()));
 
-            //if (buffer.Length == 0)
-            //{
-            //    return;
-            //}
+            if (buffer.Length == 0)
+            {
+                return;
+            }
 
-            //using (var binaryReader = new BinaryReader(new MemoryStream(buffer)))
-            //{ }
+            using (var binaryReader = new BinaryReader(new MemoryStream(buffer)))
+            {
+                MessageBroker.Default.Publish(new DatagramReceivedMessage(binaryReader));
+            }
         }
 
         private void CreateObjectPools()
@@ -99,7 +99,7 @@ namespace GameServ.Server
         {
             byte[] buffer = this.socketBufferPool.Rent(256);
             var eventArg = new SocketAsyncEventArgs();
-            eventArg = new SocketAsyncEventArgs { UserToken = new ClientConnection(this) };
+            eventArg = new SocketAsyncEventArgs { UserToken = new ConnectionState(this) };
             eventArg.Completed += new EventHandler<SocketAsyncEventArgs>(this.ReceivedSocketEvent);
             eventArg.SetBuffer(buffer, 0, 256);
             eventArg.RemoteEndPoint = this.readEndPoint;

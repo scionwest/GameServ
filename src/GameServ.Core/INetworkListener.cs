@@ -13,6 +13,6 @@ namespace GameServ
 
         void Shutdown();
 
-        void SendMessage(ClientConnection connection, IServerDatagram message);
+        void SendMessage(ConnectionState connection, IServerDatagram message);
     }
 }
