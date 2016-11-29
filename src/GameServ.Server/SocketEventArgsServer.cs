@@ -83,7 +83,9 @@ namespace GameServ.Server
 
             using (var binaryReader = new BinaryReader(new MemoryStream(buffer)))
             {
-                MessageBroker.Default.Publish(new DatagramReceivedMessage(binaryReader));
+                var header = new ClientHeader();
+                header.Deserialize(binaryReader);
+                MessageBroker.Default.Publish(new DatagramReceivedMessage(binaryReader, header));
             }
         }
 

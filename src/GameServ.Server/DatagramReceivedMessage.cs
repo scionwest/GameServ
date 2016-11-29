@@ -11,10 +11,15 @@ namespace GameServ.Server
     {
         private BinaryReader reader;
 
-        public DatagramReceivedMessage(BinaryReader binaryReader) 
-            =>this.reader = binaryReader;
+        public DatagramReceivedMessage(BinaryReader binaryReader, ClientHeader clientHeader)
+        {
+            this.reader = binaryReader;
+            this.Header = clientHeader;
+        }
 
         public BinaryReader Content => this.reader;
+
+        public ClientHeader Header { get; }
 
         public object GetContent() 
             => this.reader;

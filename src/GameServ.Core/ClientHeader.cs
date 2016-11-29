@@ -13,7 +13,7 @@ namespace GameServ
         public ClientHeader(byte channel, int clientId, bool isLastInSequence, byte messageType, DatagramPolicy policy, byte sequenceNumber)
         {
             this.Channel = channel;
-            this.ClientId = ClientId;
+            this.ClientId = clientId;
             this.IsLastInSequence = isLastInSequence;
             this.MessageType = messageType;
             this.Policy = policy;
@@ -34,11 +34,11 @@ namespace GameServ
 
         public byte SequenceNumber { get; private set; }
 
-        public byte OSPlatform { get; private set; }
+        public byte OSPlatform { get; set; }
 
-        public string OSVersion { get; private set; }
+        public string OSVersion { get; set; }
 
-        public byte AppVersion { get; private set; }
+        public byte AppVersion { get; set; }
 
         public void Deserialize(BinaryReader deserializer)
         {
@@ -71,6 +71,9 @@ namespace GameServ
             serializer.Write(this.MessageType);
             serializer.Write((int)this.Policy);
             serializer.Write(this.SequenceNumber);
+            serializer.Write(this.OSPlatform);
+            serializer.Write(this.OSVersion);
+            serializer.Write(this.AppVersion);
         }
     }
 }

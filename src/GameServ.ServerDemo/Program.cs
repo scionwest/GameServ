@@ -1,5 +1,6 @@
 ﻿using GameServ;
 using GameServ.Core;
+using GameServ.Core.Datagrams;
 using GameServ.Core.Datagrams.Client;
 using GameServ.Core.NetworkReplication;
 using GameServ.Server;
@@ -38,7 +39,21 @@ class Program
     static void Main(string[] args)
     {
         MessageBroker.Default.Subscribe<DatagramReceivedMessage>(
-            (msg, sub) => Console.WriteLine(msg.Content.ReadString()));
+            (msg, sub) =>
+            {
+                Console.Clear();
+                Console.WriteLine("The following properties arrived:");
+                if (msg.Header.MessageType != 10)
+                {
+                    Console.WriteLine("Unknown Message arrived.");
+                }
+
+                var datagram = new PlayerChangedDatagram();
+                datagram.Deserialize(msg.Content);
+                Console.WriteLine($"{nameof(datagram.Username)}: {datagram.Username}");
+                Console.WriteLine($"{nameof(datagram.CanDrive)}: {datagram.CanDrive}");
+                Console.WriteLine($"{nameof(datagram.Age)}: {datagram.Age}");
+            });
         var builder = new ServerBuilder();
         var ipAddress = new IPAddress(new byte[] { 10, 0, 1, 6 });
         builder.Configure(config =>
