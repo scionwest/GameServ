@@ -11,6 +11,7 @@ using System.Threading;
 using System.IO;
 using GameServ.Core;
 using System.Diagnostics;
+using GameServ.Datagrams;
 
 namespace GameServ.Server
 {
@@ -34,11 +35,6 @@ namespace GameServ.Server
         public ServerPolicy ServerPolicy { get; set; }
 
         public bool IsRunning { get; private set; }
-
-        public void SendMessage(ConnectionState connection, IServerDatagram message)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Shutdown()
         {
@@ -85,6 +81,22 @@ namespace GameServ.Server
             {
                 var header = new ClientHeader();
                 header.Deserialize(binaryReader);
+
+                // If it is not a valid header, abort.
+                if (!header.IsValid())
+                {
+                    return;
+                }
+
+                // TODO: Move into a different method that returns a Task we can use to wait on, perhaps a PolicyServer Type.
+                // Something like ApplyPolicy(header), which would have if (AcknowledgementRequired()) {}
+                if (header.Policy == DatagramPolicy.AcknoweldgementRequired || this.ServerPolicy == ServerPolicy.RequireAcknowledgement)
+                {
+                    // send acknowledgement.
+                }
+
+                // Publish to someone listening to this message. Something else is responsible for determining
+                // what the datagram Type is, and deserializing it.
                 MessageBroker.Default.Publish(new DatagramReceivedMessage(binaryReader, header));
             }
         }

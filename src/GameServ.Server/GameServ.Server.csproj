@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameServ.Core\GameServ.Core.csproj" />
+    <ProjectReference Include="..\GameServ.Datagrams\GameServ.Datagrams.csproj" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

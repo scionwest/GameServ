@@ -4,6 +4,7 @@ using System.Text;
 using GameServ.Core;
 using GameServ;
 using System.IO;
+using GameServ.Datagrams;
 
 namespace GameServ.Server
 {

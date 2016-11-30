@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.25914.0
+VisualStudioVersion = 15.0.25920.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServ.Core", "src\GameServ.Core\GameServ.Core.csproj", "{33D54DD9-E422-42C6-8D60-2173AD5A4953}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServ.Server", "src\GameServ.Server\GameServ.Server.csproj", "{2F290BF1-6EC0-46E0-8FB2-79B6ACECA501}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServ.ServerDemo", "src\GameServ.ServerDemo\GameServ.ServerDemo.csproj", "{D9DB2483-604E-4001-A691-C7E5A49B12C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServ.Datagrams", "src\GameServ.Datagrams\GameServ.Datagrams.csproj", "{D2D1F2E2-E938-4822-BC85-FE8B981217B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,18 @@ Global
 		{D9DB2483-604E-4001-A691-C7E5A49B12C2}.Release|x64.Build.0 = Release|Any CPU
 		{D9DB2483-604E-4001-A691-C7E5A49B12C2}.Release|x86.ActiveCfg = Release|Any CPU
 		{D9DB2483-604E-4001-A691-C7E5A49B12C2}.Release|x86.Build.0 = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|x64.Build.0 = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Debug|x86.Build.0 = Debug|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|x64.ActiveCfg = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|x64.Build.0 = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|x86.ActiveCfg = Release|Any CPU
+		{D2D1F2E2-E938-4822-BC85-FE8B981217B3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

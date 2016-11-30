@@ -9,13 +9,15 @@ namespace GameServ
 
     public class DatagramFactory
     {
-        private readonly Type clientDatagramType = typeof(IClientDatagram);
-        private readonly Dictionary<byte, Type> clientDatagrams = new Dictionary<byte, Type>();
-        private readonly ObjectPool<IClientDatagram> datagramPool = new ObjectPool<IClientDatagram>(10000);
+        private readonly Type clientDatagramType;
+        private readonly Dictionary<byte, Type> clientDatagrams;
+        private Dictionary<Type, ObjectPool<IClientDatagram>> clientDatagramPool;
 
         public DatagramFactory()
         {
-            //clientDatagrams.Add(1, typeof(MessageDatagram));
+            this.clientDatagramType = typeof(IClientDatagram);
+            this.clientDatagrams = new Dictionary<byte, Type>();
+            this.clientDatagramPool = new Dictionary<Type, ObjectPool<IClientDatagram>>();
         }
 
         public void RegisterDatagramType<TDatagram>(byte messageType) where TDatagram : IClientDatagram
@@ -23,25 +25,16 @@ namespace GameServ
             this.RegisterDatagramType(typeof(TDatagram), messageType);
         }
 
-        public void RegisterDatagramType(params Type[] datagramType)
-        {
-            foreach (Type type in datagramType)
-            {
-                DatagramMessageTypeAttribute attribute = type.GetTypeInfo().GetCustomAttribute<DatagramMessageTypeAttribute>();
-                this.RegisterDatagramType(type, attribute.MessageType);
-            }
-        }
-
         public void RegisterDatagramType(Type datagramType, byte messageType)
         {
-            if (datagramType.GetTypeInfo().ImplementedInterfaces.Contains(clientDatagramType))
+            if (datagramType == typeof(IClientDatagram))
             {
                 throw new NotSupportedException("The datagram type provided does not implement IClientDatagram");
             }
 
-            if (this.clientDatagrams.ContainsKey(messageType))
+            if (this.clientDatagrams.TryGetValue(messageType, out var previouslyRegisteredType))
             {
-                if (this.clientDatagrams[messageType] == datagramType)
+                if (previouslyRegisteredType == datagramType)
                 {
                     throw new DatagramAlreadyRegisteredException($"{datagramType.Name} has already been registered.");
                 }
@@ -52,6 +45,7 @@ namespace GameServ
             }
 
             this.clientDatagrams.Add(messageType, datagramType);
+            this.clientDatagramPool.Add(datagramType, new ObjectPool<IClientDatagram>(20));
         }
 
         public IClientDatagram CreateDatagramFromClientHeader(IClientDatagramHeader header)
@@ -61,7 +55,7 @@ namespace GameServ
                 return null;
             }
 
-            IClientDatagram datagram = this.datagramPool.Rent(datagramType);
+            IClientDatagram datagram = this.clientDatagramPool[datagramType].Rent(datagramType);
             datagram.Header = header;
             return datagram;
         }

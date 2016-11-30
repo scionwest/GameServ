@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
-namespace GameServ
+namespace GameServ.Datagrams
 {
-    public class ClientHeader : IClientDatagramHeader
+    public class ServerHeader : IDatagramHeader
     {
-        public ClientHeader() { }
-        public ClientHeader(byte channel, int clientId, bool isLastInSequence, byte messageType, DatagramPolicy policy, byte sequenceNumber)
+        public ServerHeader() { }
+        public ServerHeader(byte channel, int clientId, bool isLastInSequence, byte messageType, DatagramPolicy policy, byte sequenceNumber)
         {
             this.Channel = channel;
             this.ClientId = clientId;
@@ -19,8 +14,6 @@ namespace GameServ
             this.Policy = policy;
             this.SequenceNumber = sequenceNumber;
         }
-
-        public long TimeStamp { get; set; }
 
         public byte Channel { get; private set; }
 
@@ -34,11 +27,7 @@ namespace GameServ
 
         public byte SequenceNumber { get; private set; }
 
-        public byte OSPlatform { get; set; }
-
-        public string OSVersion { get; set; }
-
-        public byte AppVersion { get; set; }
+        public long TimeStamp { get; private set; }
 
         public void Deserialize(BinaryReader deserializer)
         {
@@ -48,19 +37,7 @@ namespace GameServ
             this.MessageType = deserializer.ReadByte();
             this.Policy = (DatagramPolicy)deserializer.ReadInt32();
             this.SequenceNumber = deserializer.ReadByte();
-            this.OSPlatform = deserializer.ReadByte();
-            this.OSVersion = deserializer.ReadString();
-            this.AppVersion = deserializer.ReadByte();
-        }
-
-        public bool IsMessageValid()
-        {
-            return true;
-        }
-
-        public void PrepareForReuse()
-        {
-            
+            this.OnDeserialization(deserializer);
         }
 
         public void Serialize(BinaryWriter serializer)
@@ -71,9 +48,34 @@ namespace GameServ
             serializer.Write(this.MessageType);
             serializer.Write((int)this.Policy);
             serializer.Write(this.SequenceNumber);
-            serializer.Write(this.OSPlatform);
-            serializer.Write(this.OSVersion);
-            serializer.Write(this.AppVersion);
+            this.OnSerialization(serializer);
+        }
+
+        public void Reset()
+        {
+            this.OnReset();
+        }
+
+        public bool IsValid()
+        {
+            return this.OnValidationCheck(true);
+        }
+
+        protected virtual void OnDeserialization(BinaryReader deserializer)
+        {
+        }
+
+        protected virtual void OnSerialization(BinaryWriter serializer)
+        {
+        }
+
+        protected virtual void OnReset()
+        {
+        }
+
+        protected virtual bool OnValidationCheck(bool isCurrentlyValid)
+        {
+            return isCurrentlyValid;
         }
     }
 }

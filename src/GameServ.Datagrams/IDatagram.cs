@@ -2,12 +2,14 @@
 
 namespace GameServ
 {
-    public interface IDatagram : IPoolable
+    public interface IDatagram
     {
         void Serialize(BinaryWriter serializer);
 
         void Deserialize(BinaryReader deserializer);
 
-        bool IsMessageValid();
+        void Reset();
+
+        bool IsValid();
     }
 }

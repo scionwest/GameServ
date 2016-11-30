@@ -12,7 +12,5 @@ namespace GameServ
         void Start();
 
         void Shutdown();
-
-        void SendMessage(ConnectionState connection, IServerDatagram message);
     }
 }

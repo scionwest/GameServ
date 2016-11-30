@@ -17,9 +17,6 @@ namespace GameServ
 
         public string OSVersion { get; private set; }
 
-        public void SendDatagramToClient(IServerDatagram datagram)
-            => this.server.SendMessage(this, datagram);
-
         public void DatagramReceived(IClientDatagram datagram)
         {
             this.LastTransmissionTime = datagram.Header.TimeStamp;
