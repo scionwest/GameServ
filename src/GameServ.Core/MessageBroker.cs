@@ -58,31 +58,21 @@ namespace GameServ.Core
             // Lock the collection while we mess with it.
             // In most cases this will be quick - a Key lookup will be done (twice) and a new item added to the collection.
             // Should not impact anything negatively
-            bool lockTaken = false;
-            try
-            {
-                this.listenerLock.Enter(ref lockTaken);
 
-                // Create our key if it doesn't exist along with an empty collection as the value.
-                if (!listeners.TryGetValue(messageType, out var subscriptions))
-                {
-                    subscriptions = new List<ISubscription>();
-                    subscriptions.Add(handler);
-                    listeners.Add(messageType, subscriptions);
-                }
-                else
-                {
-                    subscriptions.Add(handler);
-                }
-            }
-            finally
+            Monitor.Enter(listeners);
+            // Create our key if it doesn't exist along with an empty collection as the value.
+            if (!listeners.TryGetValue(messageType, out var subscriptions))
             {
-                if (lockTaken)
-                {
-                    this.listenerLock.Exit(false);
-                }
+                subscriptions = new List<ISubscription>();
+                subscriptions.Add(handler);
+                listeners.Add(messageType, subscriptions);
+            }
+            else
+            {
+                subscriptions.Add(handler);
             }
 
+            Monitor.Exit(listeners);
             return handler;
         }
 
@@ -111,23 +101,13 @@ namespace GameServ.Core
             // If we lock while publishing, the overhead could be substantial depending on what's being published.
             // We don't want to create a new collection, such as .ToArray(), as that would create to many allocations
             // over the life-time of the broker.
-            bool lockTaken = false;
-            this.listenerLock.Enter(ref lockTaken);
+            Monitor.Enter(listeners);
             var listenersToPublishTo = this.publishingCollectionPool.Rent(subscribers.Count);
-            try
+            for (int index = 0; index < subscribers.Count; index++)
             {
-                for (int index = 0; index < subscribers.Count; index++)
-                {
-                    listenersToPublishTo[index] = subscribers[index];
-                }
+                listenersToPublishTo[index] = subscribers[index];
             }
-            finally
-            {
-                if (lockTaken)
-                {
-                    this.listenerLock.Exit(false);
-                }
-            }
+            Monitor.Exit(listeners);
 
             foreach (INotification<T> handler in listenersToPublishTo)
             {
@@ -155,19 +135,9 @@ namespace GameServ.Core
             }
 
             // Remove the subscription from the collection associated with the key.
-            bool lockTaken = false;
-            try
-            {
-                this.listenerLock.Enter(ref lockTaken);
-                subscribers.Remove(args.Subscription);
-            }
-            finally
-            {
-                if (lockTaken)
-                {
-                    this.listenerLock.Exit(false);
-                }
-            }
+            Monitor.Enter(listeners);
+            subscribers.Remove(args.Subscription);
+            Monitor.Exit(listeners);
 
             args.Subscription.Unsubscribing -= this.Unsubscribe;
         }

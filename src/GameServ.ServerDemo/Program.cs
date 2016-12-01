@@ -3,6 +3,9 @@ using GameServ.Core;
 using GameServ.Datagrams.DatagramMessages;
 using GameServ.Server;
 using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 
 class Program
@@ -10,14 +13,29 @@ class Program
     static void Main(string[] args)
     {
         DatagramFactory datagramFactory = null;
-
+        int count = 0;
+        var watch = new Stopwatch();
         MessageBroker.Default.Subscribe<DatagramReceivedMessage>(
             (msg, sub) =>
             {
-                if (msg.Header.MessageType == 2)
+                //if (msg.Header.MessageType == 2)
+                //{
+                //    Console.WriteLine($"Heartbeat received from client at {DateTime.Now.ToString("T")}");
+                //}
+
+                if (watch.Elapsed.TotalSeconds >= 1)
                 {
-                    Console.WriteLine($"Heartbeat received from client at {DateTime.Now.ToString("T")}");
+                    var current = count;
+                    count = 0;
+                    watch.Reset();
+                    Console.Write($"\rAverage: {current}     ");
                 }
+                
+                if (!watch.IsRunning)
+                {
+                    watch.Start();
+                }
+                count++;
             });
 
         var builder = new ServerBuilder();
@@ -36,6 +54,7 @@ class Program
         });
 
         Console.WriteLine($"Listening on {ipAddress}");
+        watch.Start();
         builder.StartListening();
     }
 }

@@ -19,7 +19,9 @@ namespace GameServ.Server
     {
         private ArrayPool<byte> socketBufferPool;
         private ObjectPool<SocketAsyncEventArgs> socketEventArgsPool;
+        private ObjectPool<ClientHeader> clientHeaderPool;
         private Dictionary<SocketAsyncEventArgs, ConnectionState> clientState;
+        private short packetSize;
 
         private Socket listeningSocket;
         private IPEndPoint readEndPoint;
@@ -44,6 +46,7 @@ namespace GameServ.Server
         public void Start()
         {
             // Configure object pools
+            this.packetSize = (short)configuration.PacketBufferSize;
             this.CreateObjectPools();
 
             var endPoint = new IPEndPoint(this.configuration.HostAddress, this.configuration.Port);
@@ -54,7 +57,7 @@ namespace GameServ.Server
             this.listeningSocket.ReceiveFromAsync(readArgs);
 
             this.IsRunning = true;
-            while(this.IsRunning)
+            while (this.IsRunning)
             {
             }
         }
@@ -83,39 +86,40 @@ namespace GameServ.Server
                 header.Deserialize(binaryReader);
 
                 // If it is not a valid header, abort.
-                if (!header.IsValid())
-                {
-                    return;
-                }
+                //if (!header.IsValid())
+                //{
+                //    return;
+                //}
 
                 // TODO: Move into a different method that returns a Task we can use to wait on, perhaps a PolicyServer Type.
-                // Something like ApplyPolicy(header), which would have if (AcknowledgementRequired()) {}
+                // Something like ApplyPolicy(header), which would have if (AcknowledgementRequired()) { }
                 if (header.Policy == DatagramPolicy.AcknoweldgementRequired || this.ServerPolicy == ServerPolicy.RequireAcknowledgement)
                 {
                     // send acknowledgement.
                 }
 
-                // Publish to someone listening to this message. Something else is responsible for determining
+                // Publish to someone listening to this message.Something else is responsible for determining
                 // what the datagram Type is, and deserializing it.
-                MessageBroker.Default.Publish(new DatagramReceivedMessage(binaryReader, header));
+                MessageBroker.Default.Publish(new DatagramReceivedMessage(null, null));
             }
         }
 
         private void CreateObjectPools()
         {
-            const int _poolBucketSize = 1000;
+            const int _poolBucketSize = 10;
             int packetSize = this.configuration.PacketBufferSize;
-            this.socketEventArgsPool = new ObjectPool<SocketAsyncEventArgs>(1000, this.ConfigureSocketEventArgs);
-            this.socketBufferPool = ArrayPool<byte>.Create(256, _poolBucketSize);
+            this.socketEventArgsPool = new ObjectPool<SocketAsyncEventArgs>(_poolBucketSize, this.ConfigureSocketEventArgs);
+            this.socketBufferPool = ArrayPool<byte>.Create(this.packetSize, _poolBucketSize);
+            this.clientHeaderPool = new ObjectPool<ClientHeader>(_poolBucketSize);
         }
 
         private SocketAsyncEventArgs ConfigureSocketEventArgs()
         {
-            byte[] buffer = this.socketBufferPool.Rent(256);
+            byte[] buffer = this.socketBufferPool.Rent(this.packetSize);
             var eventArg = new SocketAsyncEventArgs();
             eventArg = new SocketAsyncEventArgs { UserToken = new ConnectionState(this) };
             eventArg.Completed += new EventHandler<SocketAsyncEventArgs>(this.ReceivedSocketEvent);
-            eventArg.SetBuffer(buffer, 0, 256);
+            eventArg.SetBuffer(buffer, 0, this.packetSize);
             eventArg.RemoteEndPoint = this.readEndPoint;
 
             return eventArg;

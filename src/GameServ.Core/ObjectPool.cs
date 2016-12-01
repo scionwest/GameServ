@@ -8,14 +8,12 @@ namespace GameServ
     public class ObjectPool<TObject>
     {
         private int maxPoolSize;
-        private SpinLock poolLock;
         private Dictionary<Type, Stack<TObject>> poolCache;
         private Func<TObject> factory;
 
         public ObjectPool(int poolSize)
         {
             this.maxPoolSize = poolSize;
-            this.poolLock = new SpinLock(false);
             this.poolCache = new Dictionary<Type, Stack<TObject>>();
         }
 
@@ -29,32 +27,25 @@ namespace GameServ
 
         public TObject Rent(Type type)
         {
-            bool lockTaken = false;
+            //bool lockTaken = false;
             Stack<TObject> cachedCollection;
-            this.poolLock.Enter(ref lockTaken);
 
-            try
+            TObject instance = default(TObject);
+            Monitor.Enter(this.poolCache);
+            if (!this.poolCache.TryGetValue(type, out cachedCollection))
             {
-                if (!this.poolCache.TryGetValue(type, out cachedCollection))
-                {
-                    cachedCollection = new Stack<TObject>();
-                    this.poolCache.Add(type, cachedCollection);
-                }
-            }
-            finally
-            {
-                if (lockTaken)
-                {
-                    this.poolLock.Exit(false);
-                }
+                cachedCollection = new Stack<TObject>();
+                this.poolCache.Add(type, cachedCollection);
             }
 
             if (cachedCollection.Count > 0)
             {
-                TObject instance = cachedCollection.Pop();
-                if (instance != null)
-                    return instance;
+                instance = cachedCollection.Pop();
             }
+            Monitor.Exit(this.poolCache);
+
+            if (instance != null)
+                return instance;
 
             // New instances don't need to be prepared for re-use, so we just return it.
             if (this.factory == null)
@@ -72,34 +63,24 @@ namespace GameServ
             Stack<TObject> cachedCollection = null;
             Type type = typeof(TObject);
 
-            bool lockTaken = false;
-            this.poolLock.Enter(ref lockTaken);
-            try
+            Monitor.Enter(poolCache);
+            if (!this.poolCache.TryGetValue(type, out cachedCollection))
             {
-                if (!this.poolCache.TryGetValue(type, out cachedCollection))
-                {
-                    cachedCollection = new Stack<TObject>();
-                    this.poolCache.Add(type, cachedCollection);
-                }
-
-                if (cachedCollection.Count >= this.maxPoolSize)
-                {
-                    return;
-                }
-
-                // TODO: Convert Stack into an array.
-                // We'll track the current index by decrementing the index in Rent, and incrementing in Return
-                // Upon Renting, we'll set pool[index] to null, then reduce index by 1. This lets us manage an
-                // array and have zero lookup costs.
-                cachedCollection.Push(instanceObject);
+                cachedCollection = new Stack<TObject>();
+                this.poolCache.Add(type, cachedCollection);
             }
-            finally
+
+            if (cachedCollection.Count >= this.maxPoolSize)
             {
-                if (lockTaken)
-                {
-                    this.poolLock.Exit(false);
-                }
+                return;
             }
+
+            // TODO: Convert Stack into an array.
+            // We'll track the current index by decrementing the index in Rent, and incrementing in Return
+            // Upon Renting, we'll set pool[index] to null, then reduce index by 1. This lets us manage an
+            // array and have zero lookup costs.
+            cachedCollection.Push(instanceObject);
+            Monitor.Exit(poolCache);
         }
     }
 }
